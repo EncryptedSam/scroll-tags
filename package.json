@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://EncryptedSam.github.io/scroll-tags",
+  "homepage": "https://encryptedsam.github.io/scroll-tags/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

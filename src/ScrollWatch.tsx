@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BsCaretLeftFill } from 'react-icons/bs';
 import {
     FiBookOpen,
@@ -18,18 +18,18 @@ import {
 
 
 let data: DialProps["data"] = [
-    { text: "Learn", icon: <FiBookOpen />, color: "#E6A700" },   
-    { text: "Ask", icon: <FiHelpCircle />, color: "#3B82F6" },   
-    { text: "Think", icon: <FiCpu />, color: "#6366F1" },        
-    { text: "Focus", icon: <FiTarget />, color: "#10B981" },     
-    { text: "Create", icon: <FiEdit3 />, color: "#F59E0B" },     
-    { text: "Give", icon: <FiGift />, color: "#EF4444" },        
-    { text: "Love", icon: <FiHeart />, color: "#EC4899" },       
-    { text: "Sleep", icon: <FiMoon />, color: "#8B5CF6" },       
-    { text: "Explore", icon: <FiCompass />, color: "#14B8A6" },  
-    { text: "Travel", icon: <FiMap />, color: "#22C55E" },       
-    { text: "Capture", icon: <FiCamera />, color: "#F97316" },   
-    { text: "Talk", icon: <FiMessageCircle />, color: "#0EA5E9" }, 
+    { text: "Learn", icon: <FiBookOpen />, color: "#E6A700" },
+    { text: "Ask", icon: <FiHelpCircle />, color: "#3B82F6" },
+    { text: "Think", icon: <FiCpu />, color: "#6366F1" },
+    { text: "Focus", icon: <FiTarget />, color: "#10B981" },
+    { text: "Create", icon: <FiEdit3 />, color: "#F59E0B" },
+    { text: "Give", icon: <FiGift />, color: "#EF4444" },
+    { text: "Love", icon: <FiHeart />, color: "#EC4899" },
+    { text: "Sleep", icon: <FiMoon />, color: "#8B5CF6" },
+    { text: "Explore", icon: <FiCompass />, color: "#14B8A6" },
+    { text: "Travel", icon: <FiMap />, color: "#22C55E" },
+    { text: "Capture", icon: <FiCamera />, color: "#F97316" },
+    { text: "Talk", icon: <FiMessageCircle />, color: "#0EA5E9" },
     { text: "Relax", icon: <FiCoffee />, color: "#A16207" },
 ];
 
@@ -37,13 +37,12 @@ let data: DialProps["data"] = [
 const ScrollWatch = () => {
     const [index, setIndex] = useState(0);
     const lock = useRef(false);
+    const startY = useRef(0);
 
     const MAX = data?.length;
 
-    const onWheel = (e: React.WheelEvent) => {
+    const updateIndex = (dir: number) => {
         if (lock.current) return;
-
-        const dir = e.deltaY < 0 ? 1 : -1;
 
         lock.current = true;
 
@@ -57,45 +56,72 @@ const ScrollWatch = () => {
         }, 300);
     };
 
-    return (
-        <div className='w-screen h-screen flex items-center justify-center bg-gray-950' >
-            <div
-                className='inline-flex border-10 border-gray-300 rounded-4xl'
-            >
-                <div
-                    className="relative inline-flex items-center bg-gray-900 rounded-3xl w-100 h-100 overflow-hidden"
-                    onWheel={onWheel}
-                >
+    // desktop
+    const onWheel = (e: React.WheelEvent) => {
+        const dir = e.deltaY > 0 ? 1 : -1;
+        updateIndex(dir);
+    };
 
+    // mobile
+    const onTouchStart = (e: React.TouchEvent) => {
+        startY.current = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: React.TouchEvent) => {
+        const endY = e.changedTouches[0].clientY;
+        const diff = startY.current - endY;
+
+        if (Math.abs(diff) < 30) return; // ignore small swipes
+
+        const dir = diff < 0 ? 1 : -1;
+        updateIndex(dir);
+    };
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, []);
+
+    return (
+        <div
+            className='w-screen h-screen flex items-center justify-center bg-gray-950 overflow-hidden'
+            style={{ overscrollBehavior: 'none' }}
+        >
+            <div className='inline-flex border-10 border-gray-300 rounded-4xl overflow-hidden'>
+                <div
+                    className="relative inline-flex items-center bg-gray-900 rounded-3xl w-[350px] h-[350px] overflow-hidden"
+                    onWheel={onWheel}
+                    onTouchStart={onTouchStart}
+                    onTouchEnd={onTouchEnd}
+                >
                     <Dial
                         x={475}
-                        y={200}
+                        y={175}
                         dials={30}
-                        deg={(((index) * 2) / 30) * 360}
+                        deg={((index * 2) / 30) * 360}
                         radius={250}
                         data={data}
                         gap={2}
                         skip={(360 / 30) * 2}
                         index={index}
                     />
-                    <Pointer
-                        x={270}
-                        y={200}
-                        radius={60}
-                    />
+                    <Pointer x={270} y={175} radius={60} />
                     <VerticalProgress
                         percentage={(index / MAX) * 100}
                         height='50%'
                     />
                     <div
-                        className='absolute top-0 left-0 w-full h-full'
+                        className='absolute top-0 left-0 w-full h-full rounded-3xl'
                         style={{
                             boxShadow: 'rgb(0, 0, 0,0.4) 0px 0px 89px 80px inset'
                         }}
                     />
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
