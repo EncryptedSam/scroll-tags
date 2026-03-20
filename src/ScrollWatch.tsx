@@ -92,10 +92,14 @@ const ScrollWatch = () => {
         >
             <div className='inline-flex border-10 border-gray-300 rounded-4xl overflow-hidden'>
                 <div
-                    className="relative inline-flex items-center bg-gray-900 rounded-3xl w-[350px] h-[350px] overflow-hidden"
+                    className="relative inline-flex items-center bg-gray-900 rounded-3xl w-87.5 h-87.5 transform-gpu"
                     onWheel={onWheel}
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
+                    style={{
+                        clipPath: 'inset(0 round 1.5rem)',
+                        WebkitMaskImage: 'radial-gradient(white, black)'
+                    }}
                 >
                     <Dial
                         x={475}
@@ -116,7 +120,7 @@ const ScrollWatch = () => {
                     <div
                         className='absolute top-0 left-0 w-full h-full rounded-3xl'
                         style={{
-                            boxShadow: 'rgb(0, 0, 0,0.4) 0px 0px 89px 80px inset'
+                            boxShadow: 'inset 0 0 60px 30px rgba(0,0,0,0.4)'
                         }}
                     />
                 </div>
